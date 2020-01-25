@@ -1,6 +1,8 @@
 using System;
+using System.Text;
 using NUnit.Framework.Constraints;
 using UnityEditor;
+using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 using XLua;
 using Debug = System.Diagnostics.Debug;
@@ -9,9 +11,9 @@ namespace GSLuaShell
 {
     public partial class GSLuaShellWindow : EditorWindow
     {
-        public static void Create()
+        public static GSLuaShellWindow Create()
         {
-            GSLuaShellWindow window = GetWindow<GSLuaShellWindow>("GSLuaShell");
+            return GetWindow<GSLuaShellWindow>("GSLuaShell");
             // window.setLuaEnvDelegate(luaEnvDelegate);
         }
 
@@ -28,7 +30,12 @@ namespace GSLuaShell
         {
             get
             {
-                return textEditor.text;
+                if (textEditor != null)
+                {
+                    return textEditor.text;
+                }
+
+                return "";
             }
             set
             {
@@ -43,18 +50,30 @@ namespace GSLuaShell
         #region AutoCompleteBox
         private GSLuaShellAutoCompleteBox autoCompleteBox;
         #endregion
+        
+        [SerializeField] TreeViewState treeViewState;
+        private GSLuaShellTreeView treeView;
 
         private void Awake()
         {
             requestFocusOnTextArea = true;
         }
 
+        private void OnEnable()
+        {
+            if (treeViewState == null)
+                treeViewState = new TreeViewState ();
+
+            treeView = new GSLuaShellTreeView(treeViewState);
+        }
+
         [SerializeField]
         private Vector2 scrollPos = Vector2.zero;
         private void OnGUI()
         {
-            
+            Console.Write(position);
             GUI.DrawTexture(new Rect(0, 0, maxSize.x, maxSize.y), GSLuaShellStyle.backgroundTexture, ScaleMode.StretchToFill);
+           
             EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
             {
                 GUILayout.FlexibleSpace();
@@ -66,31 +85,47 @@ namespace GSLuaShell
 
                 if (GUILayout.Button("Run", EditorStyles.toolbarButton))
                 {
-                    ParseResult(exec(text));
+                    ParseResult();
                 }
             }
             EditorGUILayout.EndHorizontal();
+        
+            Console.Write(position);
+            EditorGUILayout.BeginScrollView(scrollPos);
+            treeView.OnGUI(new Rect(0,0, position.width, position.height-100));
+            EditorGUILayout.EndScrollView();
+            
+            Console.Write(position);
             textEditor = (TextEditor)GUIUtility.GetStateObject(typeof(TextEditor), GUIUtility.keyboardControl);
-            
-            GUI.SetNextControlName(GSLuaShellConst.ConsoleTextAreaControlName);
-            GUILayout.TextArea(text, GSLuaShellStyle.textAreaStyle, GUILayout.ExpandHeight(true), GUILayout.ExpandWidth(true));
-            
+            GUILayout.TextArea(text,GUILayout.MinHeight(100));
+            Console.Write(position);
         }
 
-        private void ParseResult(object[] objects)
+        private void ParseResult()
         {
-            text = text + "\n";
+            treeView.addChild(string.Format("{0}{1}\n", GSLuaShellConst.CommandName, text));
+            object[] objects = exec(text);
             if (objects == null)
             {
-                Console.Write(objects);
+            
             }
             else
             {
                 foreach (var obj in objects)
                 {
-                    text = text + obj.ToString();
+                    treeView.addChild(string.Format("{0}\n", obj.ToString()));
                 }
             }
+            
+            treeView.Reload();
+            text = "";
+            Repaint();
+        }
+
+        public void Test(string command)
+        {
+            text = command;
+            ParseResult();
         }
     }
 }
