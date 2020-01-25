@@ -1,4 +1,4 @@
-namespace GSLuaShell
+namespace GSUnityLuaShell
 {
     public class GSLuaShellAutoCompleteBox
     {

@@ -7,18 +7,18 @@ using UnityEngine;
 using XLua;
 using Debug = System.Diagnostics.Debug;
 
-namespace GSLuaShell
+namespace GSUnityLuaShell
 {
-    public partial class GSLuaShellWindow : EditorWindow
+    public partial class GSUnityLuaShellWindow : EditorWindow
     {
-        public static GSLuaShellWindow Create()
+        public static GSUnityLuaShellWindow Create()
         {
-            return GetWindow<GSLuaShellWindow>("GSLuaShell");
+            return GetWindow<GSUnityLuaShellWindow>("GSLuaShell");
             // window.setLuaEnvDelegate(luaEnvDelegate);
         }
 
         bool requestFocusOnTextArea = false;
-        public GSLuaShellWindow()
+        public GSUnityLuaShellWindow()
         {
             autoCompleteBox = new GSLuaShellAutoCompleteBox();
         }
@@ -52,7 +52,7 @@ namespace GSLuaShell
         #endregion
         
         [SerializeField] TreeViewState treeViewState;
-        private GSLuaShellTreeView treeView;
+        private GSUnityLuaShellTreeView treeView;
 
         private void Awake()
         {
@@ -64,7 +64,7 @@ namespace GSLuaShell
             if (treeViewState == null)
                 treeViewState = new TreeViewState ();
 
-            treeView = new GSLuaShellTreeView(treeViewState);
+            treeView = new GSUnityLuaShellTreeView(treeViewState);
         }
 
         [SerializeField]
@@ -72,7 +72,7 @@ namespace GSLuaShell
         private void OnGUI()
         {
             Console.Write(position);
-            GUI.DrawTexture(new Rect(0, 0, maxSize.x, maxSize.y), GSLuaShellStyle.backgroundTexture, ScaleMode.StretchToFill);
+            GUI.DrawTexture(new Rect(0, 0, maxSize.x, maxSize.y), GSUnityLuaShellStyle.backgroundTexture, ScaleMode.StretchToFill);
            
             EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
             {
@@ -103,7 +103,8 @@ namespace GSLuaShell
 
         private void ParseResult()
         {
-            treeView.addChild(string.Format("{0}{1}\n", GSLuaShellConst.CommandName, text));
+            GSUnityLuaShellHistory.GetInstance().AddCommand(text);
+            treeView.addChild(string.Format("{0}{1}\n", GSUnityLuaShellConst.CommandName, text));
             object[] objects = exec(text);
             if (objects == null)
             {

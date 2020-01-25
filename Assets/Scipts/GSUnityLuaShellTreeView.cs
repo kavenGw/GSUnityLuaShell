@@ -1,13 +1,13 @@
 using Boo.Lang;
 using UnityEditor.IMGUI.Controls;
 
-namespace GSLuaShell
+namespace GSUnityLuaShell
 {
-    public class GSLuaShellTreeView : TreeView
+    public class GSUnityLuaShellTreeView : TreeView
     {
         TreeViewItem root = new TreeViewItem {id = 0, depth = -1, displayName = "root"};
         private int id = 0;
-        public GSLuaShellTreeView(TreeViewState treeViewState)
+        public GSUnityLuaShellTreeView(TreeViewState treeViewState)
             : base(treeViewState)
         {
         }
@@ -24,7 +24,5 @@ namespace GSLuaShell
             id++;
             root.AddChild(new TreeViewItem{id = id,depth = -1,displayName = text});
         }
-        
-        
     }
 }

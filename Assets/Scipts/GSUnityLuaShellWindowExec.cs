@@ -1,10 +1,10 @@
 using System;
 using XLua;
 
-namespace GSLuaShell
+namespace GSUnityLuaShell
 {
     
-    public partial class GSLuaShellWindow
+    public partial class GSUnityLuaShellWindow
     {
         public delegate LuaEnv GSLuaShellDelegate();
             
@@ -25,7 +25,7 @@ namespace GSLuaShell
             try
             {
                 // luaEnv = _luaEnvDelegate();
-                luaEnv = GSLuaShell.GetLuaEnv();
+                luaEnv = GSUnityLuaShell.GetLuaEnv();
             }
             catch (Exception e)
             {

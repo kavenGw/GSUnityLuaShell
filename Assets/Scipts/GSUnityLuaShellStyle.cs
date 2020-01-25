@@ -1,9 +1,9 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace GSLuaShell
+namespace GSUnityLuaShell
 {
-    public static class GSLuaShellStyle
+    public static class GSUnityLuaShellStyle
     {
         public static readonly GUIStyle textAreaStyle;
 
@@ -31,7 +31,7 @@ namespace GSLuaShell
             }
         }
 
-        static GSLuaShellStyle()
+        static GSUnityLuaShellStyle()
         {
             textAreaStyle = new GUIStyle(EditorStyles.textArea);
             textAreaStyle.padding = new RectOffset();
