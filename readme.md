@@ -1,7 +1,3 @@
-Start In 2020
-
-
-
 A Lua Shell for Unity.
 
 

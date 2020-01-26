@@ -15,7 +15,7 @@ namespace GSUnityLuaShell
         //     _luaEnvDelegate = luaEnvDelegate;
         // }
 
-        public object[] exec(string commond)
+        public object[] exec(string command)
         {
             // if (_luaEnvDelegate == null)
             // {
@@ -36,7 +36,30 @@ namespace GSUnityLuaShell
             {
                 return new object[]{"luaEnv is null,please check your luaEnv avaliable"};
             }
-            return luaEnv.DoString(commond);
+
+            object[] objects = null;
+            bool success = false;
+            try
+            {
+                objects = luaEnv.DoString(string.Format("return {0}",command));
+                success = true;
+            }
+            catch (Exception e)
+            {
+            }
+
+            if (!success)
+            {
+                try
+                {
+                    objects = luaEnv.DoString(command);
+                }
+                catch (Exception e)
+                {
+                    return new object[]{string.Format("command:{0} failed",command),e};
+                }
+            }
+            return objects;
         }
     }
 }

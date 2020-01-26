@@ -114,6 +114,11 @@ namespace GSUnityLuaShell
             {
                 foreach (var obj in objects)
                 {
+                    if (obj == null)
+                    {
+                        treeView.addChild("nil");
+                        continue;
+                    }
                     treeView.addChild(string.Format("{0}\n", obj.ToString()));
                 }
             }
