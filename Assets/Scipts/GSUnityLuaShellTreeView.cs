@@ -5,11 +5,12 @@ namespace GSUnityLuaShell
 {
     public class GSUnityLuaShellTreeView : TreeView
     {
-        TreeViewItem root = new TreeViewItem {id = 0, depth = -1, displayName = "root"};
+        private TreeViewItem root = null;
         private int id = 0;
         public GSUnityLuaShellTreeView(TreeViewState treeViewState)
             : base(treeViewState)
         {
+            clear();
         }
         
         protected override TreeViewItem BuildRoot ()
@@ -28,6 +29,13 @@ namespace GSUnityLuaShell
                 root.AddChild(new TreeViewItem{id = id,depth = -1,displayName = tempstr});
             }
             
+        }
+
+        public void clear()
+        {
+            root = new TreeViewItem {id = 0, depth = -1, displayName = "root"};
+            this.addChild("History");
+            Reload();
         }
     }
 }

@@ -17,7 +17,6 @@ namespace GSUnityLuaShell
             // window.setLuaEnvDelegate(luaEnvDelegate);
         }
 
-        bool requestFocusOnTextArea = false;
         public GSUnityLuaShellWindow()
         {
             autoCompleteBox = new GSLuaShellAutoCompleteBox();
@@ -56,7 +55,6 @@ namespace GSUnityLuaShell
 
         private void Awake()
         {
-            requestFocusOnTextArea = true;
         }
 
         private void OnEnable()
@@ -72,7 +70,7 @@ namespace GSUnityLuaShell
         private Vector2 scrollPos = Vector2.zero;
         private void OnGUI()
         {
-            Console.Write(position);
+            HandleKeyboard();
             GUI.DrawTexture(new Rect(0, 0, maxSize.x, maxSize.y), GSUnityLuaShellStyle.backgroundTexture, ScaleMode.StretchToFill);
            
             EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
@@ -81,31 +79,31 @@ namespace GSUnityLuaShell
 
                 if (GUILayout.Button("Clear", EditorStyles.toolbarButton))
                 {
-                    text = "";
+                    // text = "";
+                    treeView.clear();
                 }
 
-                if (GUILayout.Button("Run", EditorStyles.toolbarButton))
-                {
-                    ParseResult();
-                }
+                // if (GUILayout.Button("Run", EditorStyles.toolbarButton))
+                // {
+                //     ParseResult();
+                // }
             }
             EditorGUILayout.EndHorizontal();
         
-            Console.Write(position);
             EditorGUILayout.BeginScrollView(scrollPos);
             treeView.OnGUI(new Rect(0,0, position.width, position.height-100));
             EditorGUILayout.EndScrollView();
             
-            Console.Write(position);
             textEditor = (TextEditor)GUIUtility.GetStateObject(typeof(TextEditor), GUIUtility.keyboardControl);
-            GUILayout.TextArea(text,GUILayout.MinHeight(100));
-            Console.Write(position);
+            GUI.SetNextControlName(GSUnityLuaShellConst.InputTextAreaControlName);
+            GUILayout.TextArea(text,GUILayout.MinHeight(100),GUILayout.MaxHeight(100));
+            GUI.FocusControl(GSUnityLuaShellConst.InputTextAreaControlName);
         }
 
         private void ParseResult()
         {
             GSUnityLuaShellHistory.GetInstance().AddCommand(text);
-            treeView.addChild(string.Format("{0}{1}\n", GSUnityLuaShellConst.CommandName, text));
+            treeView.addChild($"{GSUnityLuaShellConst.CommandName}{text}");
             object[] objects = Exec(text);
             if (objects == null)
             {
@@ -127,7 +125,6 @@ namespace GSUnityLuaShell
             
             treeView.Reload();
             text = "";
-            Repaint();
         }
 
         public void Test(string command)
