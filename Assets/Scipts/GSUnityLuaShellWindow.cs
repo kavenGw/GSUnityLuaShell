@@ -65,6 +65,7 @@ namespace GSUnityLuaShell
                 treeViewState = new TreeViewState ();
 
             treeView = new GSUnityLuaShellTreeView(treeViewState);
+            InitGM();
         }
 
         [SerializeField]
@@ -105,7 +106,7 @@ namespace GSUnityLuaShell
         {
             GSUnityLuaShellHistory.GetInstance().AddCommand(text);
             treeView.addChild(string.Format("{0}{1}\n", GSUnityLuaShellConst.CommandName, text));
-            object[] objects = exec(text);
+            object[] objects = Exec(text);
             if (objects == null)
             {
             
@@ -119,7 +120,8 @@ namespace GSUnityLuaShell
                         treeView.addChild("nil");
                         continue;
                     }
-                    treeView.addChild(string.Format("{0}\n", obj.ToString()));
+
+                    treeView.addChild(obj.ToString());
                 }
             }
             

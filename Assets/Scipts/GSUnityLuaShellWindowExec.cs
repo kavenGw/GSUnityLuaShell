@@ -15,8 +15,18 @@ namespace GSUnityLuaShell
         //     _luaEnvDelegate = luaEnvDelegate;
         // }
 
-        public object[] exec(string command)
+        public object[] Exec(string command)
         {
+            if (command == null)
+            {
+                return new object[]{"command is null"};
+            }
+
+            if (command.StartsWith("$"))
+            {
+                return ExecGM(command);
+            }
+            
             // if (_luaEnvDelegate == null)
             // {
             //     return new object[]{"_luaEnvDelegate is null"};
@@ -41,7 +51,7 @@ namespace GSUnityLuaShell
             bool success = false;
             try
             {
-                objects = luaEnv.DoString(string.Format("return {0}",command));
+                objects = luaEnv.DoString($"return {command}");
                 success = true;
             }
             catch (Exception e)
@@ -56,7 +66,7 @@ namespace GSUnityLuaShell
                 }
                 catch (Exception e)
                 {
-                    return new object[]{string.Format("command:{0} failed",command),e};
+                    return new object[]{$"command:{command}",e};
                 }
             }
             return objects;

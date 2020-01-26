@@ -21,8 +21,13 @@ namespace GSUnityLuaShell
 
         public void addChild(string text)
         {
-            id++;
-            root.AddChild(new TreeViewItem{id = id,depth = -1,displayName = text});
+            string[] strs = text.Split('\n');
+            foreach (var tempstr in strs)
+            {
+                id++;
+                root.AddChild(new TreeViewItem{id = id,depth = -1,displayName = tempstr});
+            }
+            
         }
     }
 }
