@@ -8,11 +8,11 @@ namespace GSUnityLuaShell
 
     public sealed class GSUnityLuaShellGMItem : Attribute
     {
-        public string macros;
+        public string mMacros;
         
-        public GSUnityLuaShellGMItem(string _macros)
+        public GSUnityLuaShellGMItem(string macros)
         {
-            this.macros = _macros;
+            this.mMacros = macros;
         }
     }
     
@@ -28,7 +28,7 @@ namespace GSUnityLuaShell
                 GSUnityLuaShellGMItem gmItem = methodInfo.GetCustomAttribute<GSUnityLuaShellGMItem>();
                 if (gmItem != null)
                 {
-                    string macros = gmItem.macros;
+                    string macros = gmItem.mMacros;
                     if (allGM.ContainsKey(macros))
                     {
                         Debug.LogError($"GSUnityLuaShellWindow.InitGM repeat macros:{macros}");

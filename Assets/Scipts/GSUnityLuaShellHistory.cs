@@ -1,40 +1,42 @@
+using System.Collections;
 using System.IO;
+using System.Linq;
 using Google.Protobuf;
 
 namespace GSUnityLuaShell
 {
     public class GSUnityLuaShellHistory
     {
-        private GSUnityLuaShellCommands _commands;
+        private GSUnityLuaShellCommands mCommands;
 
-        private static GSUnityLuaShellHistory _instance;
+        private static GSUnityLuaShellHistory mInstance;
         public static GSUnityLuaShellHistory GetInstance()
         {
-            if (_instance == null)
+            if (mInstance == null)
             {
-                _instance = new GSUnityLuaShellHistory();
+                mInstance = new GSUnityLuaShellHistory();
             }
 
-            return _instance;
+            return mInstance;
         }
 
         private GSUnityLuaShellHistory()
         {
-            _commands = new GSUnityLuaShellCommands();
+            mCommands = new GSUnityLuaShellCommands();
             CreateDirectoryIfNotExit();
             if (File.Exists(GSUnityLuaShellConst.HistoryFilePath))
             {
-                GSProtoBuffTool.load(GSUnityLuaShellConst.HistoryFilePath, _commands);
+                GSProtoBuffTool.load(GSUnityLuaShellConst.HistoryFilePath, mCommands);
             }
         }
 
         public void AddCommand(string command)
         {
-            _commands.Commands.Add(command);
+            mCommands.Commands.Add(command);
 
-            if (_commands.Commands.Count > GSUnityLuaShellConst.HistoryCount)
+            if (mCommands.Commands.Count > GSUnityLuaShellConst.HistoryCount)
             {
-                _commands.Commands.RemoveAt(0);
+                mCommands.Commands.RemoveAt(0);
             }
 
             if (File.Exists(GSUnityLuaShellConst.HistoryFilePath))
@@ -44,7 +46,7 @@ namespace GSUnityLuaShell
             
             using (var output = File.Create(GSUnityLuaShellConst.HistoryFilePath))
             {
-                IMessage message = _commands;
+                IMessage message = mCommands;
                 message.WriteTo(output);
             }
         }
@@ -55,6 +57,11 @@ namespace GSUnityLuaShell
             int lastIndex = path.LastIndexOf (Path.AltDirectorySeparatorChar);
             string directory = path.Substring(0, lastIndex);
             Directory.CreateDirectory(directory);
+        }
+
+        public string[] GetAllCommands()
+        {
+            return mCommands.Commands.ToArray();
         }
     }
 }

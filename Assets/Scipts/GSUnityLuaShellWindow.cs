@@ -1,11 +1,9 @@
-using System;
-using System.Text;
-using NUnit.Framework.Constraints;
+using System.Runtime.InteropServices;
+using GS.Editor;
 using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
-using XLua;
-using Debug = System.Diagnostics.Debug;
+using UnityEngine.Serialization;
 
 namespace GSUnityLuaShell
 {
@@ -17,57 +15,33 @@ namespace GSUnityLuaShell
             // window.setLuaEnvDelegate(luaEnvDelegate);
         }
 
-        public GSUnityLuaShellWindow()
-        {
-            autoCompleteBox = new GSLuaShellAutoCompleteBox();
-        }
+        private TextEditor mTextEditor;
 
-        #region Text
-        [SerializeField]
-        private TextEditor textEditor;
-        private string text
+        private string mText = ""; 
+        public string Text
         {
             get
             {
-                if (textEditor != null)
-                {
-                    return textEditor.text;
-                }
-
-                return "";
+                return mText;
             }
-            set
-            {
-                if (textEditor != null)
-                {
-                    textEditor.text = value;
-                }
-            }
+            set { mText = value; }
         }
-        #endregion
 
-        #region AutoCompleteBox
-        private GSLuaShellAutoCompleteBox autoCompleteBox;
-        #endregion
-        
-        [SerializeField] TreeViewState treeViewState;
-        private GSUnityLuaShellTreeView treeView;
-
-        private void Awake()
-        {
-        }
+        [SerializeField] 
+        TreeViewState treeViewState;
+        private GSEditorTreeView treeView;
 
         private void OnEnable()
         {
             if (treeViewState == null)
                 treeViewState = new TreeViewState ();
 
-            treeView = new GSUnityLuaShellTreeView(treeViewState);
+            treeView = new GSEditorTreeView(treeViewState);
             InitGM();
+            InitStateM();
         }
 
-        [SerializeField]
-        private Vector2 scrollPos = Vector2.zero;
+        private Vector2 mScrollPos = Vector2.zero;
         private void OnGUI()
         {
             HandleKeyboard();
@@ -80,7 +54,7 @@ namespace GSUnityLuaShell
                 if (GUILayout.Button("Clear", EditorStyles.toolbarButton))
                 {
                     // text = "";
-                    treeView.clear();
+                    treeView.Clear();
                 }
 
                 // if (GUILayout.Button("Run", EditorStyles.toolbarButton))
@@ -90,21 +64,23 @@ namespace GSUnityLuaShell
             }
             EditorGUILayout.EndHorizontal();
         
-            EditorGUILayout.BeginScrollView(scrollPos);
-            treeView.OnGUI(new Rect(0,0, position.width, position.height-100));
+            EditorGUILayout.BeginScrollView(mScrollPos);
+            treeView.OnGUI(new Rect(0,0, position.width, position.height-GSUnityLuaShellConst.InputFiledHeight));
             EditorGUILayout.EndScrollView();
             
-            textEditor = (TextEditor)GUIUtility.GetStateObject(typeof(TextEditor), GUIUtility.keyboardControl);
+            mTextEditor = (TextEditor)GUIUtility.GetStateObject(typeof(TextEditor), GUIUtility.keyboardControl);
+            mTextEditor.text = Text;
             GUI.SetNextControlName(GSUnityLuaShellConst.InputTextAreaControlName);
-            GUILayout.TextArea(text,GUILayout.MinHeight(100),GUILayout.MaxHeight(100));
-            GUI.FocusControl(GSUnityLuaShellConst.InputTextAreaControlName);
+            Text = GUILayout.TextArea(Text,GUILayout.MinHeight(GSUnityLuaShellConst.InputFiledHeight),GUILayout.MaxHeight(GSUnityLuaShellConst.InputFiledHeight));
+            UpdateStateM();
         }
 
-        private void ParseResult()
+        public void ParseResult()
         {
-            GSUnityLuaShellHistory.GetInstance().AddCommand(text);
-            treeView.addChild($"{GSUnityLuaShellConst.CommandName}{text}");
-            object[] objects = Exec(text);
+            Debug.LogError($"ParseResult text:{Text}");
+            GSUnityLuaShellHistory.GetInstance().AddCommand(Text);
+            treeView.AddChild($"{GSUnityLuaShellConst.CommandName}{Text}");
+            object[] objects = Exec(Text);
             if (objects == null)
             {
             
@@ -115,21 +91,21 @@ namespace GSUnityLuaShell
                 {
                     if (obj == null)
                     {
-                        treeView.addChild("nil");
+                        treeView.AddChild("nil");
                         continue;
                     }
 
-                    treeView.addChild(obj.ToString());
+                    treeView.AddChild(obj.ToString());
                 }
             }
             
             treeView.Reload();
-            text = "";
+            Text = "";
         }
 
         public void Test(string command)
         {
-            text = command;
+            Text = command;
             ParseResult();
         }
     }

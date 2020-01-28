@@ -1,7 +1,6 @@
 using System.Collections;
 using PlayFab.PfEditor;
 using UnityEditor;
-using UnityShell;
 using XLua;
 
 namespace GSUnityLuaShell
