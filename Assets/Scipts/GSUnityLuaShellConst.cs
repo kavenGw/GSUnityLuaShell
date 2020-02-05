@@ -16,5 +16,8 @@ namespace GSUnityLuaShell
         
         // 输入框高度
         public const float InputFiledHeight = 100;
+        
+        // Lua Depth
+        public const int LuaTableDepth = 3;
     }
 }

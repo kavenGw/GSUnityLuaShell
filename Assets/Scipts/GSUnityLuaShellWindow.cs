@@ -1,9 +1,12 @@
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using GS.Editor;
 using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 using UnityEngine.Serialization;
+using XLua;
+using XLua.LuaDLL;
 
 namespace GSUnityLuaShell
 {
@@ -65,9 +68,14 @@ namespace GSUnityLuaShell
             EditorGUILayout.EndHorizontal();
         
             EditorGUILayout.BeginScrollView(mScrollPos);
-            treeView.OnGUI(new Rect(0,0, position.width, position.height-GSUnityLuaShellConst.InputFiledHeight));
+            treeView.OnGUI(new Rect(0,0, position.width, position.height-GSUnityLuaShellConst.InputFiledHeight - 50));
             EditorGUILayout.EndScrollView();
             
+            //TODO 修复回车导致对于\n
+            if (Text.StartsWith("\n"))
+            {
+                Text = Text.Substring(1, Text.Length - 1);
+            }
             mTextEditor = (TextEditor)GUIUtility.GetStateObject(typeof(TextEditor), GUIUtility.keyboardControl);
             mTextEditor.text = Text;
             GUI.SetNextControlName(GSUnityLuaShellConst.InputTextAreaControlName);
@@ -87,19 +95,30 @@ namespace GSUnityLuaShell
             }
             else
             {
-                foreach (var obj in objects)
+                if (objects.Length == 1)
                 {
-                    if (obj == null)
+                    object result = objects[0];
+                    if (result is LuaTable)
                     {
-                        treeView.AddChild("nil");
-                        continue;
+                        treeView.AddChild(result.ToString());
+                        ParseResultLuaTable(result as LuaTable,1);
                     }
-
-                    treeView.AddChild(obj.ToString());
+                    else
+                    {
+                        treeView.AddChild( result == null ? "nil" : result.ToString());
+                    }
+                }
+                else
+                {
+                    foreach (var obj in objects)
+                    {
+                        treeView.AddChild( obj == null ? "nil" : obj.ToString());
+                    }
                 }
             }
             
             treeView.Reload();
+            treeView.SetSelection(new List<int>(){treeView.getRoot().children[treeView.getRoot().children.Count-1].id},TreeViewSelectionOptions.RevealAndFrame);
             Text = "";
         }
 
@@ -107,6 +126,43 @@ namespace GSUnityLuaShell
         {
             Text = command;
             ParseResult();
+        }
+
+        public void ParseResultLuaTable(LuaTable luaTable,int depth)
+        {
+            if (depth >= GSUnityLuaShellConst.LuaTableDepth)
+            {
+                return;
+            }
+            
+            foreach (var key in luaTable.GetKeys())
+            {
+                var value = luaTable[key];
+                if (value == null)
+                {
+                    treeView.AddChild($"{key}    nil",false,depth);
+                    continue;
+                }
+                treeView.AddChild($"{key}    {value.ToString()}",false,depth);
+                if (value is LuaTable)
+                {
+                    ParseResultLuaTable(value as LuaTable, depth+1);
+                }
+            }
+
+            for (int i = 1; i <= luaTable.Length; i++)
+            {
+                object value = luaTable[i];
+                if (value == null)
+                {
+                    break;
+                }
+                treeView.AddChild($"{value.ToString()}",false,depth);
+                if (value is LuaTable)
+                {
+                    ParseResultLuaTable(value as LuaTable, depth+1);
+                }
+            }
         }
     }
 }

@@ -26,7 +26,7 @@ namespace GSUnityLuaShell
             CreateDirectoryIfNotExit();
             if (File.Exists(GSUnityLuaShellConst.HistoryFilePath))
             {
-                GSProtoBuffTool.load(GSUnityLuaShellConst.HistoryFilePath, mCommands);
+                GSProtoBufTool.load(GSUnityLuaShellConst.HistoryFilePath, mCommands);
             }
         }
 

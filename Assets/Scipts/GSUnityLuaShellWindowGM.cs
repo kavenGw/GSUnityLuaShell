@@ -64,7 +64,7 @@ namespace GSUnityLuaShell
         [GSUnityLuaShellGMItem(("pl"))]
         public object[] Loaded()
         {
-            return getValue("package.loaded");
+            return Exec("package.loaded");
         }
         
         [GSUnityLuaShellGMItem(("r"))]
@@ -90,52 +90,13 @@ namespace GSUnityLuaShell
             end
             return all_loaded_packages
             ";
-            return getValue(command);
+            return Exec(command);
         }
         
         [GSUnityLuaShellGMItem(("g"))]
         public object[] G()
         {
-            return getValue("_G");
-        }
-
-        private object[] getValue(string value)
-        {
-            object[] objects = Exec(value);
-            if (objects.Length <= 0)
-            {
-                return new object[]{$"value:{value} not exit"};
-            }
-
-            System.Collections.Generic.List<object> results = new System.Collections.Generic.List<object>();
-            printLuaValue(results,objects[0]);
-            return results.ToArray();
-        }
-
-        private void printLuaValue(System.Collections.Generic.List<object> result,object obj)
-        {
-            if (obj is LuaTable)
-            {
-                LuaTable table = obj as LuaTable;
-                foreach (var key in table.GetKeys())
-                {
-                    result.Add($"{key}    {table[key].ToString()}");
-                }
-
-                for (int i = 1; i <= int.MaxValue; i++)
-                {
-                    object value = table[i];
-                    if (value == null)
-                    {
-                        break;
-                    }
-                    result.Add($"{table[i].ToString()}");
-                }
-            }
-            else
-            {
-                result.Add(obj.ToString());
-            }
+            return Exec("_G");
         }
     }
 
